@@ -9,37 +9,43 @@ json_schema = {
     "description": "Job Posting from a company.",
     "type": "object",
     "properties": {
-        "Title": {
+        "job_title": {
             "type": "string",
             "description": "Job Title that is posted in the listing",
         },
-        "Company": {
+        "company_name": {
             "type": "string",
             "description": "The company which is hiring",
         },
-        "Location": {
+        "location": {
             "type": "string",
-            "description": "Location of the job, could be remote or in a specific location, or not listed at all.",
+            "description": "Location of the job, could be remote or in a specific location, or not listed at all. If not remote, format like this: San Jose, CA",
             "default": None,
         },
-        "Description": {
+        "description": {
             "type": "string",
             "description": "A very short summary of the job and what the company is looking for",
             "default": None,
         },
-        "Experience": {
+        "experience": {
             "type": "integer",
             "description": "1-10 rating for what sort of experience level this job is for. 1 would be for intern. 10 would be for PhD",
             "default": None,
         },
-        "Year_Desired": {
+        "year_desired": {
             "type": "integer",
-            "description": "If listed, which earliest year of school this listing would prefer",
+            "description": "If listed, which earliest year of school this listing would prefer. Example: 2024, 2025, 2026, 2027",
+            "default": None,
+        },
+        "posting_date": {
+            "type": "string",
+            "format": "date",
+            "description": "date of the posting if listed",
             "default": None,
         }
 
     },
-    "required": ["Title", "Company", "Description", "Experience"],
+    "required": ["job_title", "company_name", "description", "experience"],
 }
 
 def num_tokens_from_string(string: str, encoding_name: str) -> int:
@@ -54,6 +60,7 @@ def extract_job_details(content, max_tokens: int):
     tokens_used = num_tokens_from_string(content, "cl100k_base")
 
     if (tokens_used >= max_tokens):
+        print("Too many tokens: ", tokens_used)
         return None
 
     print("tokens used: ", tokens_used)
