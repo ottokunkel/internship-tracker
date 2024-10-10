@@ -1,2 +1,16 @@
+
+# input
+*.csv
+
+# VS_CODE
+.DS_Store
+
+# environmental variables
 .env
 .venv
+
+# python
+__pycache__/
+
+# logs
+log/*.txt
