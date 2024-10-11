@@ -1,10 +1,14 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from utils import load_sql
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+def load_sql(query_name):
+    with open(f'sql/{query_name}.sql', 'r') as file:
+        return file.read()
+
 
 def execute_query(conn, query, params=None):
   with conn.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -28,21 +32,24 @@ def setup_database(conn):
   query = load_sql('create_trgm_indexes')
   execute_query(conn, query)
 
-def check_similar_listing(conn, job_title, company_name, url):
+def check_similar_listing(conn, location, job_title, company_name, url):
   query = load_sql('check_similar_listing')
 
   # Set similarity thresholds
   title_threshold = 0.7
   company_threshold = 0.7
   url_threshold = 0.9
+  location_threshold = .9
 
   params = {
     'job_title': job_title,
     'company_name': company_name,
     'url': url,
+    'location': location,
     'title_threshold': title_threshold,
     'company_threshold': company_threshold,
-    'url_threshold': url_threshold
+    'url_threshold': url_threshold,
+    'location_threshold': location_threshold
   }
 
   # Set the similarity threshold for the session
@@ -63,9 +70,11 @@ def add_job_listing(
   location=None, 
   posting_date=None
 ):
-  existing_listing = check_similar_listing(conn, job_title, company_name, url)
+  existing_listing = check_similar_listing(conn, location, job_title, company_name, url)
   if existing_listing:
     print(f"A similar job listing already exists with ID: {existing_listing['id']}")
+  
+    return f"Already in List"
     # Optionally update the existing listing here
   else:
     query = load_sql('insert_job_listing')
@@ -81,3 +90,5 @@ def add_job_listing(
     }
     execute_query(conn, query, params)
     print("The job listing was added.")
+
+    return "Sucess"

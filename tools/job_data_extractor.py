@@ -20,32 +20,31 @@ json_schema = {
         "location": {
             "type": "string",
             "description": "Location of the job, could be remote or in a specific location, or not listed at all. If not remote, format like this: San Jose, CA",
-            "default": None,
+            "default": "N/A",
         },
         "description": {
             "type": "string",
-            "description": "A very short summary of the job and what the company is looking for",
-            "default": None,
+            "description": "A very short summary of the job and what the company is looking for. Under 200 words",
+            "default": "N/A",
         },
         "experience": {
             "type": "integer",
             "description": "1-10 rating for what sort of experience level this job is for. 1 would be for intern. 10 would be for PhD",
-            "default": None,
+            "default": "N/A",
         },
         "year_desired": {
             "type": "integer",
             "description": "If listed, which earliest year of school this listing would prefer. Example: 2024, 2025, 2026, 2027",
-            "default": None,
+            "default": "N/A",
         },
         "posting_date": {
             "type": "string",
-            "format": "date",
-            "description": "date of the posting if listed",
-            "default": None,
+            "description": "date of the posting if listed use the YYYY-MM-DD format",
+            "default": "N/A",
         }
 
     },
-    "required": ["job_title", "company_name", "description", "experience"],
+    "required": ["job_title", "company_name", "location", "description", "experience"],
 }
 
 def num_tokens_from_string(string: str, encoding_name: str) -> int:
@@ -62,7 +61,10 @@ def extract_job_details(content, max_tokens: int):
     if (tokens_used >= max_tokens):
         print("Too many tokens: ", tokens_used)
         return None
-
+    if (tokens_used <= 70):
+        print("Not enough tokens")
+        return None
+    
     print("tokens used: ", tokens_used)
 
     prompt = ChatPromptTemplate.from_messages(
@@ -81,7 +83,7 @@ def extract_job_details(content, max_tokens: int):
         ]
     )
     runnable = prompt | llm.with_structured_output(schema=json_schema)
-
+    
     output = runnable.invoke({"text": content})
     
     return output

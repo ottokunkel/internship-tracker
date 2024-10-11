@@ -1,6 +1,8 @@
 
-# input
+# input/output
 *.csv
+*.xlsx
+
 
 # VS_CODE
 .DS_Store
